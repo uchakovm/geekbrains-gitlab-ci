@@ -1,0 +1,56 @@
+repo: https://gitlab.com/uchakovm/ci-cd-08-01
+pipeline: https://gitlab.com/uchakovm/ci-cd-08-01/-/pipelines/614284333
+
+Running with gitlab-runner 15.3.0~beta.42.gdb7789ca (db7789ca)
+  on blue-3.shared.runners-manager.gitlab.com/default zxwgkjAP
+Preparing the "docker+machine" executor
+00:33
+Using Docker executor with image docker:latest ...
+Starting service docker:dind ...
+Pulling docker image docker:dind ...
+Using docker image sha256:e1a3d5b85ecd82b20045c0dc8733c8429087f2c6aefc8a74d7c9942c6722953c for docker:dind with digest docker@sha256:8d0980a0fc4ed2869ef9f8bd017a637a408fb4d038a64d490a6080c2318eacc8 ...
+Waiting for services to be up and running (timeout 30 seconds)...
+Pulling docker image docker:latest ...
+Using docker image sha256:87452597cd172fae96865ec2275a5c0ee110511a896d3b439aec6a92592fe9d9 for docker:latest with digest docker@sha256:0c4066e2407fb67b5cb609aa2ea380cdd774445e6be1cd651096167963125af5 ...
+Preparing environment
+00:00
+Running on runner-zxwgkjap-project-38258104-concurrent-0 via runner-zxwgkjap-shared-1660627278-1f6c023b...
+Getting source from Git repository
+00:02
+$ eval "$CI_PRE_CLONE_SCRIPT"
+Fetching changes with git depth set to 20...
+Initialized empty Git repository in /builds/uchakovm/ci-cd-08-01/.git/
+Created fresh repository.
+Checking out 96bf37c9 as main...
+Skipping Git submodules setup
+Executing "step_script" stage of the job script
+00:02
+Using docker image sha256:87452597cd172fae96865ec2275a5c0ee110511a896d3b439aec6a92592fe9d9 for docker:latest with digest docker@sha256:0c4066e2407fb67b5cb609aa2ea380cdd774445e6be1cd651096167963125af5 ...
+$ docker login -u $GITLAB_CI_USER -p $GITLAB_CI_PASSWORD $CI_REGISTRY
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+$ echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY $CI_REGISTRY_IMAGE:$IMAGE_TAG
+gitlab-ci-token [MASKED] registry.gitlab.com registry.gitlab.com/uchakovm/ci-cd-08-01:main-96bf37c9
+$ docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+main-96bf37c9: Pulling from uchakovm/ci-cd-08-01
+50783e0dfb64: Pulling fs layer
+47baf418c282: Pulling fs layer
+50783e0dfb64: Verifying Checksum
+50783e0dfb64: Download complete
+47baf418c282: Verifying Checksum
+47baf418c282: Download complete
+50783e0dfb64: Pull complete
+47baf418c282: Pull complete
+Digest: sha256:33b4cf6ec41cbb23c06db8514ada8313050a1c9055db9334960ced94e75624a0
+Status: Downloaded newer image for registry.gitlab.com/uchakovm/ci-cd-08-01:main-96bf37c9
+registry.gitlab.com/uchakovm/ci-cd-08-01:main-96bf37c9
+$ docker run -dit --name test $CI_REGISTRY_IMAGE:$IMAGE_TAG
+5214cbe9001bd2a61afad52b81534a54cb0342fe0c254239bf56fe32bf8c2972
+$ docker ps | grep test
+5214cbe9001b   registry.gitlab.com/uchakovm/ci-cd-08-01:main-96bf37c9   "sh"      Less than a second ago   Up Less than a second             test
+Cleaning up project directory and file based variables
+00:00
+Job succeeded

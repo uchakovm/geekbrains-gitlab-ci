@@ -1,0 +1,36 @@
+default:
+  tags:
+    - "docker"
+
+variables:
+  IMAGE_TAG: $CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+
+stages:
+  - build
+  - test
+
+image: busybox:latest
+
+docker build:
+  image: docker:latest
+  stage: build
+  services: 
+    - docker:dind
+  script:
+    - docker login -u $GITLAB_CI_USER -p $GITLAB_CI_PASSWORD $CI_REGISTRY
+    - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker build -t $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+
+test:
+  image: docker:latest
+  stage: test
+  services: 
+    - docker:dind
+  before_script:
+    - docker login -u $GITLAB_CI_USER -p $GITLAB_CI_PASSWORD $CI_REGISTRY
+    - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY $CI_REGISTRY_IMAGE:$IMAGE_TAG
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker run -dit --name test $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker ps | grep test
