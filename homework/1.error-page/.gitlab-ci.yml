@@ -1,0 +1,31 @@
+stages:
+  - build
+  - deploy
+
+image: busybox:latest
+
+build1:
+  stage: build
+  script:
+    - echo "Do your build here"
+    - echo "<!DOCTYPE html><html><body><h1>My Custom 404</h1></body></html>" >> 404.html
+  artifacts:
+    paths:
+      - 404.html
+    expire_in: 1 week
+
+deploy1:
+  stage: deploy
+  script:
+    - echo "Do your deploy here"
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp 404.html public/404.html
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
