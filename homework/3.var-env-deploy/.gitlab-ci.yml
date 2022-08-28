@@ -1,0 +1,97 @@
+default:
+  tags:
+    - "docker"
+
+variables:
+  IMAGE_TAG: $CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+  MY_LOGIN: env_dev_login
+
+stages:
+  - build
+  - test
+  - deploy
+  - stop
+
+docker build:
+  image: docker:latest
+  stage: build
+  services: 
+    - docker:dind
+  script:
+    - docker login -u $GITLAB_CI_USER -p $GITLAB_CI_PASSWORD $CI_REGISTRY
+    - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker build -t $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+
+test:
+  image: docker:latest
+  stage: test
+  services: 
+    - docker:dind
+  before_script:
+    - docker login -u $GITLAB_CI_USER -p $GITLAB_CI_PASSWORD $CI_REGISTRY
+    - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY $CI_REGISTRY_IMAGE:$IMAGE_TAG
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker run -dit --name test $CI_REGISTRY_IMAGE:$IMAGE_TAG
+    - docker ps | grep test
+
+deploy to staging:
+  stage: deploy
+  variables:
+    TARGET_ENV: staging
+    MY_LOGIN: env_staging_login
+  script:
+    - echo "Do your deploy here to ${TARGET_ENV}"
+    - echo "MY_LOGIN = ${MY_LOGIN}"
+    - echo "MY_PASSWORD = ${MY_PASSWORD}"
+  only:
+    - main
+  environment:
+    name: staging
+    on_stop: stop at staging
+    auto_stop_in: 1 day
+
+stop at staging:
+  stage: stop
+  variables:
+    TARGET_ENV: staging
+    MY_LOGIN: env_staging_login
+  script:
+    - echo "STOP ${TARGET_ENV}"
+  only:
+    - main
+  when: manual
+  environment:
+    name: staging
+    action: stop
+
+deploy to prod:
+  stage: deploy
+  variables:
+    TARGET_ENV: prod
+    MY_LOGIN: env_prod_login
+  script:
+    - echo "Do your deploy here to ${TARGET_ENV}"
+    - echo "MyLogin ${MY_LOGIN}"
+    - echo "MY_PASSWORD = ${MY_PASSWORD}"
+  only:
+    - main
+  when: manual
+  environment:
+    name: prod
+    on_stop: stop at prod
+
+stop at prod:
+  stage: stop
+  variables:
+    TARGET_ENV: prod
+    MyLogin: env_prod_login
+  script:
+    - echo "STOP ${TARGET_ENV}"
+  only:
+    - main
+  when: manual
+  environment:
+    name: prod
+    action: stop
